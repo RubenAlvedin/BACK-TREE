@@ -1,51 +1,97 @@
-# Symfony Docker
 
-A [Docker](https://www.docker.com/)-based installer and runtime for the [Symfony](https://symfony.com) web framework,
-with [FrankenPHP](https://frankenphp.dev) and [Caddy](https://caddyserver.com/) inside!
 
-![CI](https://github.com/dunglas/symfony-docker/workflows/CI/badge.svg)
+# 🎯 Projet Symfony – Notification de changement de score
 
-## Getting Started
+Ce projet Symfony Backend a pour objectif de **mettre en relation un Listener surveillant les changements de score d’un utilisateur** avec un **microservice externe de mailing**, permettant ainsi d’envoyer une notification par email à chaque mise à jour.
 
-1. If not already done, [install Docker Compose](https://docs.docker.com/compose/install/) (v2.10+)
-2. Run `docker compose build --no-cache` to build fresh images
-3. Run `docker compose up --pull always -d --wait` to set up and start a fresh Symfony project
-4. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
-5. Run `docker compose down --remove-orphans` to stop the Docker containers.
+---
 
-## Features
+## 🧩 Fonctionnalités principales
 
-* Production, development and CI ready
-* Just 1 service by default
-* Blazing-fast performance thanks to [the worker mode of FrankenPHP](https://github.com/dunglas/frankenphp/blob/main/docs/worker.md) (automatically enabled in prod mode)
-* [Installation of extra Docker Compose services](docs/extra-services.md) with Symfony Flex
-* Automatic HTTPS (in dev and prod)
-* HTTP/3 and [Early Hints](https://symfony.com/blog/new-in-symfony-6-3-early-hints) support
-* Real-time messaging thanks to a built-in [Mercure hub](https://symfony.com/doc/current/mercure.html)
-* [Vulcain](https://vulcain.rocks) support
-* Native [XDebug](docs/xdebug.md) integration
-* Super-readable configuration
+* 🎧 **Listener `ScoreUpdateListener`**
+  Écoute les changements du champ `score` sur l'entité `User`. Lorsqu'une mise à jour est détectée, une requête HTTP est envoyée vers un service externe de mailing (ex : `http://host.docker.internal:8001/send-score-change`).
 
-**Enjoy!**
+* 📩 **Intégration d’un microservice Mailer externe**
+  Communication via requêtes HTTP POST pour externaliser l’envoi de mails.
 
-## Docs
+* 🔐 **Système d’authentification personnalisé**
+  Implémentation manuelle de la gestion de tokens pour l'authentification, sans recours à JWT.
+  👉 Ce choix respecte la consigne "utilisation d’un framework PHP de notre choix" et n’impacte pas les fonctionnalités d’inscription et de connexion.
 
-1. [Options available](docs/options.md)
-2. [Using Symfony Docker with an existing project](docs/existing-project.md)
-3. [Support for extra services](docs/extra-services.md)
-4. [Deploying in production](docs/production.md)
-5. [Debugging with Xdebug](docs/xdebug.md)
-6. [TLS Certificates](docs/tls.md)
-7. [Using MySQL instead of PostgreSQL](docs/mysql.md)
-8. [Using Alpine Linux instead of Debian](docs/alpine.md)
-9. [Using a Makefile](docs/makefile.md)
-10. [Updating the template](docs/updating.md)
-11. [Troubleshooting](docs/troubleshooting.md)
+* 👤 **Commandes personnalisées pour la création d'utilisateurs**
+  Des commandes Symfony CLI permettent de créer un utilisateur directement via la console.
 
-## License
+* ✅ **Assert personnalisés**
+  Validation avancée des données grâce à des contraintes personnalisées sur les entités.
 
-Symfony Docker is available under the MIT License.
+---
 
-## Credits
+## 🚀 Lancer le projet en local
 
-Created by [Kévin Dunglas](https://dunglas.dev), co-maintained by [Maxime Helias](https://twitter.com/maxhelias) and sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
+### Prérequis
+
+* PHP 8.1+
+* Composer
+* Symfony CLI
+* Docker (pour le microservice si nécessaire)
+* Une base de données (MySQL ou autre)
+
+### Installation
+
+```bash
+git clone https://github.com/votre-repo/mon-projet-symfony.git
+cd mon-projet-symfony
+composer install
+cp .env.example .env
+php bin/console doctrine:database:create
+php bin/console doctrine:migrations:migrate
+symfony server:start
+```
+
+---
+
+## ⚙️ Commandes utiles
+
+### Créer un utilisateur via CLI
+
+```bash
+php bin/console app:create-user
+```
+
+---
+
+## 🔒 Authentification personnalisée
+
+Le système d’authentification repose sur :
+
+* une gestion de token propre (stocké et validé sans JWT)
+* un endpoint de login générant un token
+* un middleware vérifiant les tokens à chaque requête protégée
+
+---
+
+## 📦 Structure du projet
+
+```
+src/
+├── Command/               # Commandes CLI personnalisées
+├── Entity/                # Entités Doctrine
+├── EventListener/         # Listener pour score
+├── Security/              # Authentification custom
+├── Service/               # Services (appel au microservice mailer)
+└── Validator/             # Assert personnalisés
+```
+
+---
+
+## ✍️ Remarques
+
+> 💡 Ce projet respecte les contraintes pédagogiques en utilisant Symfony comme framework PHP principal, tout en proposant une implémentation personnalisée qui n’entrave pas les fonctionnalités d’inscription et de connexion classiques.
+
+---
+
+⚠️ Limitations
+
+🔧 Note personnelle :
+Je n’ai malheureusement pas réussi à faire fonctionner la communication entre le listener ScoreUpdateListener et le microservice mailer.
+Néanmoins, j’ai proposé une configuration complète et documentée qui pourrait être fonctionnelle, avec une structure permettant facilement de corriger ou compléter le système.
