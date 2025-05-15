@@ -7,7 +7,6 @@ use App\Doctrine\Trait\TimestampableTrait;
 use App\Doctrine\Trait\UuidTrait;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;

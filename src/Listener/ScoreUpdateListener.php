@@ -29,9 +29,8 @@ class ScoreUpdateListener
         if (!$user instanceof User) {
             throw new RuntimeException('Invalid user.');
         }
-
             // Exemple d'appel à un microservice externe
-            $this->httpClient->request('POST', 'http://host.docker.internal:8000/send-score-change', [
+            $this->httpClient->request('POST', 'http://host.docker.internal:8001/send-mail', [
                 'headers' => [
                     'Authorization' => 'abcd1234-super-cle-secrete',
                 ],
